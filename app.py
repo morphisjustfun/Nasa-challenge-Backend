@@ -1,5 +1,5 @@
 import os
-from .controller.controller import api
+from controller.controller import api
 
 from flask import Flask
 from flask_cors import CORS
