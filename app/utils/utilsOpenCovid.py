@@ -117,8 +117,15 @@ def getOpenCovidPeruData(date):
     res = conn.getresponse()
     data = res.read()
     jsonData = json.loads(data.decode('utf-8'))
-    filteredData = list(map((lambda value: {constantsOpenCovidData['REGION']: value[constantsOpenCovidData['REGION']], constantsOpenCovidData['APPLIEDTESTS']: value[constantsOpenCovidData['APPLIEDTESTS']], constantsOpenCovidData['TEST_POSITIVITY']:  value[constantsOpenCovidData['TEST_POSITIVITY']], constantsOpenCovidData['POPULATION']: value[constantsOpenCovidData['POPULATION']], constantsOpenCovidData['BEDS_OCCUPIED']: value[constantsOpenCovidData['BEDS_OCCUPIED']],
-                        constantsOpenCovidData['BEDS_UCI_OCCUPIED']: value[constantsOpenCovidData['BEDS_UCI_OCCUPIED']], constantsOpenCovidData['CONFIRMED_CASES_WEEKLY']: (value[constantsOpenCovidData['POPULATION']]*value[constantsOpenCovidData['CONFIRMED_CASES_WEEKLY']])/100000, constantsOpenCovidData['DEATHS_CASES_WEEKLY']: (value[constantsOpenCovidData['POPULATION']]*value[constantsOpenCovidData['DEATHS_CASES_WEEKLY']])/100000}), jsonData[0][constantsOpenCovidData['REGIONS']]))
+    filteredData = list(map((lambda value: {constantsOpenCovidData['REGION']: value[constantsOpenCovidData['REGION']],
+                                            constantsOpenCovidData['APPLIEDTESTS']: value[constantsOpenCovidData['APPLIEDTESTS']],
+                                            constantsOpenCovidData['TEST_POSITIVITY']: value[constantsOpenCovidData['TEST_POSITIVITY']],
+                                            constantsOpenCovidData['POPULATION']: value[constantsOpenCovidData['POPULATION']],
+                                            constantsOpenCovidData['BEDS_OCCUPIED']: value[constantsOpenCovidData['BEDS_OCCUPIED']],
+                                            constantsOpenCovidData['BEDS_UCI_OCCUPIED']: value[constantsOpenCovidData['BEDS_UCI_OCCUPIED']],
+                                            constantsOpenCovidData['CONFIRMED_CASES_WEEKLY']: (value[constantsOpenCovidData['POPULATION']] * value[constantsOpenCovidData['CONFIRMED_CASES_WEEKLY']]) / 100000,
+                                            constantsOpenCovidData['DEATHS_CASES_WEEKLY']: (value[constantsOpenCovidData['POPULATION']] * value[constantsOpenCovidData['DEATHS_CASES_WEEKLY']]) / 100000}),
+                            jsonData[0][constantsOpenCovidData['REGIONS']]))
     df = pd.DataFrame(filteredData)
     return df
 
@@ -135,20 +142,38 @@ def getProcessedTable(date):
     positivityRate = (data[constantsOpenCovidData['TEST_POSITIVITY']])
     bedsOccupiedPercentage = (data[constantsOpenCovidData['BEDS_OCCUPIED']])
     bedsUCIOccupiedPercentage = data[constantsOpenCovidData['BEDS_UCI_OCCUPIED']]
-    finalDF = pd.concat([regions, confirmedDeaths100k, confirmedCases100k, appliedTests100k, positivityRate, bedsOccupiedPercentage, bedsUCIOccupiedPercentage], axis=1, join='inner', keys=[constantsOpenCovidData['REGIONS'], constantsOpenCovidData['CONFIRMED_DEATHS_100K'],
-                        constantsOpenCovidData['CONFIRMED_CASES_100K'], constantsOpenCovidData['APPLIED_TESTS_100K'], constantsOpenCovidData['POSITIVITY_RATE'], constantsOpenCovidData['BEDS_OCCUPIED_PERCENTAGE'], constantsOpenCovidData['BEDS_UCI_OCCUPIED_PERCENTAGE']])
+    finalDF = pd.concat([regions,
+                         confirmedDeaths100k,
+                         confirmedCases100k,
+                         appliedTests100k,
+                         positivityRate,
+                         bedsOccupiedPercentage,
+                         bedsUCIOccupiedPercentage],
+                        axis=1,
+                        join='inner',
+                        keys=[constantsOpenCovidData['REGIONS'],
+                              constantsOpenCovidData['CONFIRMED_DEATHS_100K'],
+                              constantsOpenCovidData['CONFIRMED_CASES_100K'],
+                              constantsOpenCovidData['APPLIED_TESTS_100K'],
+                              constantsOpenCovidData['POSITIVITY_RATE'],
+                              constantsOpenCovidData['BEDS_OCCUPIED_PERCENTAGE'],
+                              constantsOpenCovidData['BEDS_UCI_OCCUPIED_PERCENTAGE']])
     finalDF = finalDF.round(2)
     return finalDF
+
 
 def getIndex(city):
     from ..utils.utils import getOffSetTime
     endDate = 196 + getOffSetTime()
-    rangeDates = list(range(endDate,0,-7))
+    rangeDates = list(range(endDate, 0, -7))
     totalIndividual = ''
-    currentDF = '' 
+    currentDF = ''
     for i in rangeDates:
         try:
-            testDf = getProcessedTable(datetime.date.today()-datetime.timedelta(days=i))
+            testDf = getProcessedTable(
+                datetime.date.today() -
+                datetime.timedelta(
+                    days=i))
             testDf = testDf[testDf[constantsOpenCovidData['REGIONS']] == city]
             del testDf[constantsOpenCovidData['REGIONS']]
 
@@ -158,26 +183,33 @@ def getIndex(city):
             if i == endDate:
                 totalIndividual = testDf
             else:
-                totalIndividual = pd.concat([totalIndividual,testDf],ignore_index=True)
-        except:
+                totalIndividual = pd.concat(
+                    [totalIndividual, testDf], ignore_index=True)
+        except BaseException:
             continue
 
     correlation_matrix = totalIndividual.corr()
     correlation_matrix_filtered = correlation_matrix['confirmedDeaths100k']
-    correlation_matrix_filtered = correlation_matrix_filtered[[1,2,3,4,5]]
-    correlation_matrix_filtered = correlation_matrix_filtered/sum(correlation_matrix_filtered)
+    correlation_matrix_filtered = correlation_matrix_filtered[[1, 2, 3, 4, 5]]
+    correlation_matrix_filtered = correlation_matrix_filtered / \
+        sum(correlation_matrix_filtered)
     correlation_matrix_filtered = pd.DataFrame(correlation_matrix_filtered)
     correlation_matrix_filtered.columns = [city]
-    
+
     weights_table_city = correlation_matrix_filtered
     weights_table_city = weights_table_city.transpose()
-    
+
     totalRisk = 0
-    for rate in [constantsOpenCovidData['CONFIRMED_CASES_100K'], constantsOpenCovidData['APPLIED_TESTS_100K'], constantsOpenCovidData['POSITIVITY_RATE'], constantsOpenCovidData['BEDS_OCCUPIED_PERCENTAGE'], constantsOpenCovidData['BEDS_UCI_OCCUPIED_PERCENTAGE']]:
+    for rate in [
+            constantsOpenCovidData['CONFIRMED_CASES_100K'],
+            constantsOpenCovidData['APPLIED_TESTS_100K'],
+            constantsOpenCovidData['POSITIVITY_RATE'],
+            constantsOpenCovidData['BEDS_OCCUPIED_PERCENTAGE'],
+            constantsOpenCovidData['BEDS_UCI_OCCUPIED_PERCENTAGE']]:
         dataRate = float(currentDF[rate])
-        riskNoWeight = ConvertToScale(dataRate,rate)
+        riskNoWeight = ConvertToScale(dataRate, rate)
         factorWeight = float(weights_table_city[rate])
         riskWeighted = factorWeight * riskNoWeight
         totalRisk = totalRisk + riskWeighted
-    
+
     return totalRisk

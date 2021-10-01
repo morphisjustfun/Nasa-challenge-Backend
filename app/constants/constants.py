@@ -31,7 +31,7 @@ constantsWaqiData = {
     'O3': 'o3',
 
     'DATA': 'data',
-    'IAQI':'iaqi',
+    'IAQI': 'iaqi',
     'FORECAST': 'forecast',
     'DAILY': 'daily'
 }
