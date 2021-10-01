@@ -1,4 +1,5 @@
 import os
+from .controller.controller import api
 
 from flask import Flask
 from flask_cors import CORS
@@ -16,6 +17,4 @@ try:
 except OSError:
     pass
 
-@app.route('/test')
-def test():
-    return 'test'
+app.register_blueprint(api,url_prefix='/api')
