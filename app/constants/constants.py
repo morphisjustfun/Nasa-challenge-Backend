@@ -66,7 +66,7 @@ constantsRegions = [
 ]
 
 constantsVaccines = {
-    'PZIFER': 'PFIZER',
+    'PFIZER': 'PFIZER',
     'ASTRAZENECA': 'ASTRAZENECA',
     'SINOPHARM': 'SINOPHARM'
 }
