@@ -1,6 +1,5 @@
 import datetime
 from .utilsOpenCovid import getIndex
-from .utilsEnvironmental import getRisk2nd
 from .utilsVaccine import getVaccineEffect
 
 
@@ -17,6 +16,5 @@ def getOffSetTime():
 
 def getRisk3ndComplete(city, dose, brand):
     first = getIndex(city)
-    second = getRisk2nd(first)
-    third = getVaccineEffect(dose, brand, second)
+    third = getVaccineEffect(dose, brand, first)
     return third

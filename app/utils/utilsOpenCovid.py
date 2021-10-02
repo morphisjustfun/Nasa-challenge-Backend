@@ -1,6 +1,6 @@
 import http.client
 import json
-from ..constants.constants import constantsOpenCovidData
+from ..constants.constants import constantsOpenCovidData, constantsWaqiData
 import pandas as pd
 import datetime
 
@@ -164,6 +164,7 @@ def getProcessedTable(date):
 
 def getIndex(city):
     from ..utils.utils import getOffSetTime
+    from ..utils.utilsEnvironmental import getCorrelationEnvironmental, getWaqiData, getFactorV2
     endDate = 196 + getOffSetTime()
     rangeDates = list(range(endDate, 0, -7))
     totalIndividual = ''
@@ -190,7 +191,9 @@ def getIndex(city):
 
     correlation_matrix = totalIndividual.corr()
     correlation_matrix_filtered = correlation_matrix['confirmedDeaths100k']
-    correlation_matrix_filtered = correlation_matrix_filtered[[1, 2, 3, 4, 5]]
+    correlation_matrix_filtered[constantsWaqiData['PM10']] = getCorrelationEnvironmental(constantsWaqiData['PM10'])
+    correlation_matrix_filtered[constantsWaqiData['PM2.5']] = getCorrelationEnvironmental(constantsWaqiData['PM10'])
+    correlation_matrix_filtered = correlation_matrix_filtered[[1, 2, 3, 4, 5,6,7]]
     correlation_matrix_filtered = correlation_matrix_filtered / \
         sum(correlation_matrix_filtered)
     correlation_matrix_filtered = pd.DataFrame(correlation_matrix_filtered)
@@ -199,15 +202,23 @@ def getIndex(city):
     weights_table_city = correlation_matrix_filtered
     weights_table_city = weights_table_city.transpose()
 
+    environmentalData = getWaqiData()
+
     totalRisk = 0
     for rate in [
             constantsOpenCovidData['CONFIRMED_CASES_100K'],
             constantsOpenCovidData['APPLIED_TESTS_100K'],
             constantsOpenCovidData['POSITIVITY_RATE'],
             constantsOpenCovidData['BEDS_OCCUPIED_PERCENTAGE'],
-            constantsOpenCovidData['BEDS_UCI_OCCUPIED_PERCENTAGE']]:
-        dataRate = float(currentDF[rate])
-        riskNoWeight = ConvertToScale(dataRate, rate)
+            constantsOpenCovidData['BEDS_UCI_OCCUPIED_PERCENTAGE'],
+            constantsWaqiData['PM10'],
+            constantsWaqiData['PM2.5']]:
+        if rate == constantsWaqiData['PM10'] or rate == constantsWaqiData['PM2.5']:
+            dataRate = float(environmentalData['currentData'][rate])
+            riskNoWeight = getFactorV2(rate,dataRate)
+        else:
+            dataRate = float(currentDF[rate])
+            riskNoWeight = ConvertToScale(dataRate, rate)
         factorWeight = float(weights_table_city[rate])
         riskWeighted = factorWeight * riskNoWeight
         totalRisk = totalRisk + riskWeighted

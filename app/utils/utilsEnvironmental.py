@@ -4,16 +4,39 @@ from ..constants.constants import constantsWaqiData
 from statistics import mean
 
 
-def getFactor(element, difference):
-    if element == constantsWaqiData['PM10']:
-        sigDif = int(difference / 10)
-        return (1.76 / 100) * sigDif
-    elif element == constantsWaqiData['PM2.5']:
-        sigDif = int(difference / 10)
-        return (2.24 / 100) * sigDif
-    elif element == constantsWaqiData['O3']:
-        sigDif = int(difference / 10)
-        return (4.76 / 100) * sigDif
+def getFactorV2(element, difference):
+    if element == constantsWaqiData['PM2.5']:
+        if difference <= 21.683:
+            return 1
+        elif difference <= 42.367:
+            return 2
+        elif difference <= 63.05:
+            return 3
+        elif difference <= 83.733:
+            return 4
+        elif difference <= 104.417:
+            return 5
+        else:
+            return 6
+    elif element == constantsWaqiData['PM10']:
+        if difference <= 50.313:
+            return 1
+        elif difference <= 72.775:
+            return 2
+        elif difference <= 95.236:
+            return 3
+        elif difference <= 117.698:
+            return 4
+        elif difference <= 140.16:
+            return 5
+        else:
+            return 6
+
+def getCorrelationEnvironmental(element):
+    if element == constantsWaqiData['PM2.5']:
+        return 0.6475992758574727
+    elif element == constantsWaqiData['PM10']:
+        return 0.8344427809997236
 
 
 def getWaqiData():
@@ -86,21 +109,3 @@ def getWaqiData():
         constantsWaqiData['O3']: o3Avg}
 
     return {'currentData': currentData, 'avgData': avgData}
-
-
-def getRisk2nd(inputNumber):
-    environmentalData = getWaqiData()
-    increments = []
-    for element in [
-            constantsWaqiData['PM10'],
-            constantsWaqiData['PM2.5'],
-            constantsWaqiData['O3']]:
-        difference = abs(
-            environmentalData['currentData'][element] -
-            environmentalData['avgData'][element])
-        factor = getFactor(element, difference)
-        increments.append(factor * inputNumber)
-    returnNumber = inputNumber
-    for increment in increments:
-        returnNumber = returnNumber + increment
-    return returnNumber
