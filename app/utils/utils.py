@@ -13,8 +13,14 @@ def getOffSetTime():
     x = datetime.date(2021, 9, 29)
     return int((x - (datetime.date.today())).days / 7)
 
+def getReinfectionRate (covidBefore, risk):
+    if covidBefore:
+        return risk * 0.16
+    else:
+        return risk
 
-def getRisk3ndComplete(city, dose, brand):
+def getRisk3ndComplete(city, dose, brand, covidBefore):
     first = getIndex(city)
-    third = getVaccineEffect(dose, brand, first)
+    second = getVaccineEffect(dose, brand, first)
+    third = getReinfectionRate(covidBefore,second)
     return third
