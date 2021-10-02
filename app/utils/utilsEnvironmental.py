@@ -32,6 +32,7 @@ def getFactorV2(element, difference):
         else:
             return 6
 
+
 def getCorrelationEnvironmental(element):
     if element == constantsWaqiData['PM2.5']:
         return 0.6475992758574727

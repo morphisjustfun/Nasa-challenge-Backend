@@ -191,9 +191,12 @@ def getIndex(city):
 
     correlation_matrix = totalIndividual.corr()
     correlation_matrix_filtered = correlation_matrix['confirmedDeaths100k']
-    correlation_matrix_filtered[constantsWaqiData['PM10']] = getCorrelationEnvironmental(constantsWaqiData['PM10'])
-    correlation_matrix_filtered[constantsWaqiData['PM2.5']] = getCorrelationEnvironmental(constantsWaqiData['PM10'])
-    correlation_matrix_filtered = correlation_matrix_filtered[[1, 2, 3, 4, 5,6,7]]
+    correlation_matrix_filtered[constantsWaqiData['PM10']
+                                ] = getCorrelationEnvironmental(constantsWaqiData['PM10'])
+    correlation_matrix_filtered[constantsWaqiData['PM2.5']
+                                ] = getCorrelationEnvironmental(constantsWaqiData['PM10'])
+    correlation_matrix_filtered = correlation_matrix_filtered[[
+        1, 2, 3, 4, 5, 6, 7]]
     correlation_matrix_filtered = correlation_matrix_filtered / \
         sum(correlation_matrix_filtered)
     correlation_matrix_filtered = pd.DataFrame(correlation_matrix_filtered)
@@ -215,7 +218,7 @@ def getIndex(city):
             constantsWaqiData['PM2.5']]:
         if rate == constantsWaqiData['PM10'] or rate == constantsWaqiData['PM2.5']:
             dataRate = float(environmentalData['currentData'][rate])
-            riskNoWeight = getFactorV2(rate,dataRate)
+            riskNoWeight = getFactorV2(rate, dataRate)
         else:
             dataRate = float(currentDF[rate])
             riskNoWeight = ConvertToScale(dataRate, rate)
