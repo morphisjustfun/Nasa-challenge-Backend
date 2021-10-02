@@ -165,7 +165,7 @@ def getProcessedTable(date):
 def getIndex(city):
     from ..utils.utils import getOffSetTime
     from ..utils.utilsEnvironmental import getCorrelationEnvironmental, getWaqiData, getFactorV2
-    endDate = 196 + getOffSetTime()
+    endDate = 238 + getOffSetTime()
     rangeDates = list(range(endDate, 0, -7))
     totalIndividual = ''
     currentDF = ''
