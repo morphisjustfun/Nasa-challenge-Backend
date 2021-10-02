@@ -191,10 +191,10 @@ def getIndex(city):
 
     correlation_matrix = totalIndividual.corr()
     correlation_matrix_filtered = correlation_matrix['confirmedDeaths100k']
-    correlation_matrix_filtered[constantsWaqiData['PM10']
-                                ] = getCorrelationEnvironmental(constantsWaqiData['PM10'])
-    correlation_matrix_filtered[constantsWaqiData['PM2.5']
-                                ] = getCorrelationEnvironmental(constantsWaqiData['PM10'])
+    correlation_matrix_filtered[constantsWaqiData['PM10']] = getCorrelationEnvironmental(
+        constantsWaqiData['PM10'], city)
+    correlation_matrix_filtered[constantsWaqiData['PM2.5']] = getCorrelationEnvironmental(
+        constantsWaqiData['PM2.5'], city)
     correlation_matrix_filtered = correlation_matrix_filtered[[
         1, 2, 3, 4, 5, 6, 7]]
     correlation_matrix_filtered = correlation_matrix_filtered / \
