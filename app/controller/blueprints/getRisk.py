@@ -14,7 +14,7 @@ def getRiskF():
     city = body['city']  # type: ignore
     dose = body['dose']  # type: ignore
     brand = body['brand']  # type: ignore
-    covidBefore = body['brand'] == 1 # type: ignore
+    covidBefore = body['covidBefore'] == 1 # type: ignore
 
     if city in constantsRegions:
         return json.dumps({'result': getRisk3ndComplete(city, dose, brand, covidBefore)})
